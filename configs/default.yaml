@@ -1,0 +1,38 @@
+# Default configuration for resource allocation optimization
+
+# Solver configuration
+solver_type: "scipy"  # Options: scipy, cvxpy, ortools, pulp
+random_seed: 42
+
+# Data generation parameters
+data_generation:
+  n_projects: 5
+  n_resources: 4
+  project_types: ["Development", "Marketing", "Operations", "Research", "Support"]
+  resource_types: ["Labor", "Budget", "Equipment", "Time"]
+
+# Optimization parameters
+optimization:
+  objective_type: "maximize_profit"  # Options: maximize_profit, minimize_cost, maximize_utilization
+  max_iterations: 1000
+  tolerance: 1e-6
+
+# Evaluation parameters
+evaluation:
+  include_shadow_prices: true
+  calculate_sensitivity: true
+  generate_reports: true
+
+# Visualization parameters
+visualization:
+  style: "seaborn-v0_8"
+  save_plots: true
+  plot_format: "html"  # Options: html, png, svg
+  figure_size: [12, 8]
+
+# Output configuration
+output:
+  save_results: true
+  results_dir: "assets/results"
+  plots_dir: "assets/plots"
+  reports_dir: "assets/reports"

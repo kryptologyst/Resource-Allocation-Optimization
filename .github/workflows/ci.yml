@@ -1,0 +1,92 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.10, 3.11, 3.12]
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e .
+        pip install pytest pytest-cov
+    
+    - name: Lint with ruff
+      run: |
+        pip install ruff
+        ruff check src/ tests/ scripts/ --output-format=github
+    
+    - name: Format check with black
+      run: |
+        pip install black
+        black --check src/ tests/ scripts/
+    
+    - name: Test with pytest
+      run: |
+        pytest tests/ -v --cov=src --cov-report=xml --cov-report=html
+    
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false
+
+  demo-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.11
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e .
+    
+    - name: Test demo application
+      run: |
+        python -c "
+        import sys
+        sys.path.insert(0, 'src')
+        from src.data.generator import DataGenerator
+        from src.optimization.optimizer import ResourceAllocationOptimizer
+        from src.evaluation.evaluator import ResourceAllocationEvaluator
+        from src.utils.config import Config
+        
+        # Quick smoke test
+        config = Config(random_seed=42)
+        data_gen = DataGenerator(config)
+        projects, resources, allocation_matrix = data_gen.generate_complete_dataset(3, 2)
+        
+        optimizer = ResourceAllocationOptimizer(config)
+        results = optimizer.optimize(projects, resources, allocation_matrix)
+        
+        evaluator = ResourceAllocationEvaluator()
+        evaluation = evaluator.evaluate(results, projects, resources, allocation_matrix)
+        
+        print('Demo test passed!')
+        print(f'Status: {results[\"status\"]}')
+        print(f'Objective: {results.get(\"objective_value\", \"N/A\")}')
+        "

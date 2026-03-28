@@ -1,0 +1,37 @@
+# Constrained resource scenario
+solver_type: "ortools"
+random_seed: 42
+
+data_generation:
+  n_projects: 6
+  n_resources: 3
+  project_types: ["Development", "Marketing", "Operations", "Research", "Support", "Sales"]
+  resource_types: ["Labor", "Budget", "Equipment"]
+
+# Decrease resource availability multipliers
+resource_multipliers:
+  Labor: 0.6
+  Budget: 0.5
+  Equipment: 0.7
+
+optimization:
+  objective_type: "maximize_profit"
+  max_iterations: 5000
+  tolerance: 1e-10
+
+evaluation:
+  include_shadow_prices: true
+  calculate_sensitivity: true
+  generate_reports: true
+
+visualization:
+  style: "seaborn-v0_8"
+  save_plots: true
+  plot_format: "html"
+  figure_size: [12, 8]
+
+output:
+  save_results: true
+  results_dir: "assets/results/constrained"
+  plots_dir: "assets/plots/constrained"
+  reports_dir: "assets/reports/constrained"
